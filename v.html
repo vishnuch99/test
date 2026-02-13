@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Will you be my Valentine, Teja garu?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#ff4d6d;--dark:#333}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui;background:linear-gradient(135deg,#ffe6f0,#fff5f8);display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
+.container{width:1000px;max-width:95%;text-align:center;background:white;padding:40px;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,0.15);position:relative;height:85vh;overflow:hidden}
+h1{font-family:'Great Vibes',cursive;font-size:56px;color:var(--accent);margin:0 0 30px}
+.play-area{position:relative;width:100%;height:60%;z-index:1}
+.choice{position:absolute;width:200px;text-align:center;cursor:pointer;transition:transform .1s ease}
+.choice img{width:200px;height:200px;border-radius:24px;object-fit:cover;box-shadow:0 15px 40px rgba(0,0,0,0.25)}
+.choice span{display:block;margin-top:10px;font-size:22px;font-weight:600;color:var(--dark)}
+#yesChoice{left:5%;top:20%;z-index:3}
+#noChoice{right:5%;top:20%;z-index:2}
+.message{margin-top:20px;font-size:22px;color:var(--dark);min-height:40px;position:relative;z-index:5}
+.fullscreen-result{position:absolute;inset:0;background:white;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .6s ease}
+.fullscreen-result img{width:420px;border-radius:28px;box-shadow:0 20px 60px rgba(0,0,0,0.35)}
+.fullscreen-result h2{font-family:'Great Vibes',cursive;color:var(--accent);font-size:54px;margin-top:30px}
+.fullscreen-result.show{opacity:1;pointer-events:auto}
+.hide{opacity:0;pointer-events:none;transition:opacity .4s ease}
+.explode{animation:boom .4s ease forwards}
+@keyframes boom{0%{transform:scale(1)}50%{transform:scale(1.6)}100%{transform:scale(0);opacity:0}}
+</style>
+</head>
+<body>
+<div class="container">
+<div id="mainContent">
+<h1>Will you be my Valentine, Teja garu?</h1>
+<div class="play-area" id="playArea">
+<div class="choice" id="yesChoice">
+<img src="woman.jpg" alt="Yes">
+<span>Yes 💖</span>
+</div>
+<div class="choice" id="noChoice">
+<img src="man.PNG" alt="No">
+<span>No 😏</span>
+</div>
+</div>
+<div class="message" id="message">So... what do you say? 😌</div>
+</div>
+<div class="fullscreen-result" id="finalScreen">
+<img src="both.JPG" alt="Both">
+<h2 id="finalText"></h2>
+</div>
+</div>
+<script>
+(function(){
+const yes=document.getElementById('yesChoice');
+const no=document.getElementById('noChoice');
+const message=document.getElementById('message');
+const playArea=document.getElementById('playArea');
+const finalScreen=document.getElementById('finalScreen');
+const finalText=document.getElementById('finalText');
+const mainContent=document.getElementById('mainContent');
+let attempts=0;
+let lastX=0;
+let lastY=0;
+const lines=[
+"Oh, you do? 😏",
+"How much? 👀",
+"Oh wow, you do wanna be my valentine 💕",
+"You almost got me 😜",
+"Try harder mister 😆",
+"Still chasing me? 😌",
+"This is kinda cute ngl 💖",
+"Determined, huh? 😍",
+"Okay okay I'm impressed 🥰",
+"One more time... 💘"
+];
+function isOverlapping(rect1,rect2){
+return !(rect1.right<rect2.left||rect1.left>rect2.right||rect1.bottom<rect2.top||rect1.top>rect2.bottom);
+}
+function moveYes(){
+const areaRect=playArea.getBoundingClientRect();
+const noRect=no.getBoundingClientRect();
+const minJump=areaRect.width/3;
+const verticalBuffer=60;
+let newX,newY,tries=0;
+do{
+const maxX=areaRect.width-yes.offsetWidth;
+const maxY=areaRect.height-yes.offsetHeight-verticalBuffer;
+newX=Math.random()*maxX;
+newY=Math.random()*maxY;
+yes.style.left=newX+'px';
+yes.style.top=newY+'px';
+tries++;
+}while((isOverlapping(yes.getBoundingClientRect(),noRect)||Math.hypot(newX-lastX,newY-lastY)<minJump)&&tries<100);
+lastX=newX;
+lastY=newY;
+}
+playArea.addEventListener('mousemove',function(e){
+if(attempts>=10)return;
+const yesRect=yes.getBoundingClientRect();
+const distance=Math.hypot(e.clientX-(yesRect.left+yesRect.width/2),e.clientY-(yesRect.top+yesRect.height/2));
+if(distance<200){
+moveYes();
+message.textContent=lines[attempts];
+attempts++;
+}
+});
+yes.addEventListener('click',function(){
+if(attempts>=10){
+yes.classList.add('explode');
+setTimeout(()=>{
+mainContent.classList.add('hide');
+finalScreen.classList.add('show');
+finalText.textContent="Baby loves you too 💖";
+},400);
+}
+});
+no.addEventListener('click',function(){
+mainContent.classList.add('hide');
+finalScreen.classList.add('show');
+finalText.textContent="Sorry husband, too late for that 😉";
+});
+})();
+</script>
+</body>
+</html>
